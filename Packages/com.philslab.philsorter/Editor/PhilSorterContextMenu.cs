@@ -645,12 +645,56 @@ public static class PhilSorterContextMenu
         newRoot = newRoot.Replace("\\", "/");
         int patchCount = 0;
         if (config != null && config.showDebugLogs) Debug.Log($"[Phil's Sorter] Patching hardcoded paths from {oldRoot} to {newRoot} in {csFiles.Length} files");
+        
+        string patchComment = $"// PATCHED BY PHILSORT: Path updated from '{oldRoot}' to '{newRoot}' on {System.DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+        
         foreach (var file in csFiles)
         {
             string text = File.ReadAllText(file);
             string patched = text.Replace(oldRoot, newRoot);
+            
+            // If we made changes, also add a comment at the top of the file to indicate patching
             if (text != patched)
             {
+                // Check if the file already has a PhilSort patch comment to avoid duplicates
+                if (!patched.Contains("// PATCHED BY PHILSORT:"))
+                {
+                    // Find the first actual code line (after using statements and namespace declarations)
+                    var lines = patched.Split('\n');
+                    int insertIndex = lines.Length; // Default to end if no good place found
+                    
+                    // Skip initial comments, using statements, and find a good place to insert
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        string trimmed = lines[i].Trim();
+                        if (trimmed.StartsWith("using ") || 
+                            trimmed.StartsWith("//") || 
+                            trimmed.StartsWith("/*") || 
+                            trimmed.StartsWith("*") ||
+                            string.IsNullOrWhiteSpace(trimmed))
+                        {
+                            continue;
+                        }
+                        // Insert comment before the first meaningful code line
+                        insertIndex = i;
+                        break;
+                    }
+                    
+                    // Insert the patch comment - if insertIndex is at the end, append instead of insert
+                    var linesList = new List<string>(lines);
+                    if (insertIndex >= linesList.Count)
+                    {
+                        linesList.Add("");
+                        linesList.Add(patchComment);
+                    }
+                    else
+                    {
+                        linesList.Insert(insertIndex, patchComment);
+                        linesList.Insert(insertIndex + 1, "");
+                    }
+                    patched = string.Join("\n", linesList);
+                }
+                
                 File.WriteAllText(file, patched);
                 patchCount++;
                 if (config != null && config.showDebugLogs) Debug.Log($"[Phil's Sorter] Patched file: {file}");

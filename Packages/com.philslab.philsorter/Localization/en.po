@@ -168,7 +168,7 @@ msgid "hardcoded_paths_warning"
 msgstr "Warning: The following scripts contain hardcoded asset paths or Application.dataPath references:"
 
 msgid "patch_complete"
-msgstr "Patched {0} script(s) to update hardcoded paths.\n\nYou should still review your code for any issues."
+msgstr "Patched {0} script(s) to update hardcoded paths and added patch comments.\n\nYou should still review your code for any issues."
 
 ## Additional missing keys
 msgid "general"

@@ -168,7 +168,7 @@ msgid "hardcoded_paths_warning"
 msgstr "警告: 以下のスクリプトにはハードコードされたアセットパスやApplication.dataPath参照が含まれています:"
 
 msgid "patch_complete"
-msgstr "{0} 個のスクリプトにパッチを適用してハードコードされたパスを更新しました。\n\nコードに問題がないか確認することをお勧めします。"
+msgstr "{0} 個のスクリプトにパッチを適用してハードコードされたパスを更新し、パッチコメントを追加しました。\n\nコードに問題がないか確認することをお勧めします。"
 
 ## 追加の不足キー
 msgid "general"
