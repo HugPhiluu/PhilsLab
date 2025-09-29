@@ -1,7 +1,7 @@
 using System;
-using UnityEngine;
-using UnityEditor;
 using System.IO;
+using UnityEditor;
+using UnityEngine;
 using PhilSorter.Localization;
 
 namespace PhilSorter
@@ -34,7 +34,7 @@ namespace PhilSorter
                         foreach (var guid in scriptGuids)
                         {
                             var testPath = AssetDatabase.GUIDToAssetPath(guid);
-                            if (testPath.Contains("com.philslab.philsort") && testPath.EndsWith("Editor/L10n/L10n.cs"))
+                            if (testPath.Contains("com.philslab.philsorter") && testPath.EndsWith("Editor/L10n/L10n.cs"))
                             {
                                 scriptPath = testPath;
                                 break;
@@ -52,9 +52,9 @@ namespace PhilSorter
                         {
                             // Method 3: Last resort fallback - try common package locations
                             string[] possiblePaths = {
-                                "Packages/com.philslab.philsort/Localization",
-                                "Assets/Packages/com.philslab.philsort/Localization",
-                                "Packages/com.philslab.philsorter/Localization" // Old name fallback
+                                "Packages/com.philslab.philsorter/Localization",
+                                "Assets/Packages/com.philslab.philsorter/Localization",
+                                "Packages/com.philslab.philsort/Localization" // Legacy name fallback
                             };
                             
                             foreach (var testPath in possiblePaths)
@@ -70,7 +70,7 @@ namespace PhilSorter
                             if (string.IsNullOrEmpty(_localizationPath))
                             {
                                 // Absolute last resort
-                                _localizationPath = "Packages/com.philslab.philsort/Localization";
+                                _localizationPath = "Packages/com.philslab.philsorter/Localization";
                                 Debug.LogWarning($"[PhilSorter] Could not find localization path, using fallback: {_localizationPath}");
                             }
                         }

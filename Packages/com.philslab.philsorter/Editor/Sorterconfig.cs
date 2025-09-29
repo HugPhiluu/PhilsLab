@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "SorterConfig", menuName = "Phil's Sorter/Config")]
 public class SorterConfig : ScriptableObject
@@ -12,7 +12,6 @@ public class SorterConfig : ScriptableObject
     public bool showRecentTargets = true;
     public bool showDebugLogs = false;
     public bool enableExperimental = false;
- 
 
     public List<TargetFolder> targetFolders = new List<TargetFolder>();
     public List<string> recentTargets = new List<string>();

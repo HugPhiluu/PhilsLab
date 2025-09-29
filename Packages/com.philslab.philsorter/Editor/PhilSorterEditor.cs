@@ -1,13 +1,13 @@
-using UnityEngine;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
+using PhilSorter.Localization;
 
 // For referencing TargetFolder type
 using TargetFolder = SorterConfig.TargetFolder;
-using PhilSorter.Localization;
 
 public class PhilSorterWindow : EditorWindow
 {
@@ -56,7 +56,11 @@ public class PhilSorterWindow : EditorWindow
             {
                 // Only prefill if newDisplayName is empty or matches the previous folder name
                 string folderName = Path.GetFileName(path);
-                if (string.IsNullOrEmpty(newDisplayName) || (lastSelection != null && newDisplayName == Path.GetFileName(AssetDatabase.GetAssetPath(lastSelection))))
+                bool isEmptyName = string.IsNullOrEmpty(newDisplayName);
+                bool matchesPrevious = lastSelection != null && 
+                                     newDisplayName == Path.GetFileName(AssetDatabase.GetAssetPath(lastSelection));
+                
+                if (isEmptyName || matchesPrevious)
                 {
                     newDisplayName = folderName;
                 }
@@ -91,15 +95,18 @@ public class PhilSorterWindow : EditorWindow
         scroll = EditorGUILayout.BeginScrollView(scroll);
 
         var filtered = config.targetFolders
-            .Where(f => string.IsNullOrEmpty(search) || (f.displayName != null && f.displayName.ToLower().Contains(search.ToLower())) || (f.path != null && f.path.ToLower().Contains(search.ToLower())))
+            .Where(f => string.IsNullOrEmpty(search) || 
+                       (f.displayName != null && f.displayName.ToLower().Contains(search.ToLower())) || 
+                       (f.path != null && f.path.ToLower().Contains(search.ToLower())))
             .ToList();
 
         // Show folders grouped and ordered by user category order
         foreach (var cat in categories)
         {
-            var catFolders = filtered.Where(f => (string.IsNullOrEmpty(f.category) ? "Default" : f.category) == cat)
-                                     .OrderBy(f => f.displayName)
-                                     .ToList();
+            var catFolders = filtered
+                .Where(f => (string.IsNullOrEmpty(f.category) ? "Default" : f.category) == cat)
+                .OrderBy(f => f.displayName)
+                .ToList();
             if (catFolders.Count == 0) continue;
             EditorGUILayout.Space();
             EditorGUILayout.LabelField(cat, EditorStyles.miniBoldLabel);
@@ -174,14 +181,20 @@ public class PhilSorterWindow : EditorWindow
             EditorGUILayout.LabelField(label, EditorStyles.miniLabel);
             if (GUILayout.Button(PhilSorter.L10n.TrStr("jump"), GUILayout.Width(50)))
             {
-                string jumpPath = entry.action == "Move" && !string.IsNullOrEmpty(entry.extra) ? entry.extra : entry.path;
+                string jumpPath = entry.action == "Move" && !string.IsNullOrEmpty(entry.extra) 
+                    ? entry.extra 
+                    : entry.path;
+                    
                 if (!string.IsNullOrEmpty(jumpPath))
                 {
                     var obj = AssetDatabase.LoadAssetAtPath<Object>(jumpPath);
                     if (obj != null)
                         Selection.activeObject = obj;
                     else
-                        EditorUtility.DisplayDialog(PhilSorter.L10n.TrStr("jump_failed_title"), $"Could not find path: {jumpPath}", PhilSorter.L10n.TrStr("ok"));
+                        EditorUtility.DisplayDialog(
+                            PhilSorter.L10n.TrStr("jump_failed_title"), 
+                            $"Could not find path: {jumpPath}", 
+                            PhilSorter.L10n.TrStr("ok"));
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -192,12 +205,29 @@ public class PhilSorterWindow : EditorWindow
 
     private void DrawSettingsUI()
     {
-        // --- Sleek Modern Settings UI (Unity rich text is limited, so use layout, icons, and font styles) ---
+        // --- Sleek Modern Settings UI ---
         GUILayout.Space(10);
-        GUIStyle titleStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 18, alignment = TextAnchor.MiddleCenter };
-        GUIStyle sectionStyle = new GUIStyle(EditorStyles.helpBox) { padding = new RectOffset(16, 16, 12, 12), margin = new RectOffset(0,0,0,8) };
+        
+        GUIStyle titleStyle = new GUIStyle(EditorStyles.boldLabel) 
+        { 
+            fontSize = 18, 
+            alignment = TextAnchor.MiddleCenter 
+        };
+        
+        GUIStyle sectionStyle = new GUIStyle(EditorStyles.helpBox) 
+        { 
+            padding = new RectOffset(16, 16, 12, 12), 
+            margin = new RectOffset(0, 0, 0, 8) 
+        };
+        
         GUIStyle headerStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 14 };
-        GUIStyle descStyle = new GUIStyle(EditorStyles.miniLabel) { fontSize = 11, normal = { textColor = new Color(0.7f,0.7f,0.7f) } };
+        
+        GUIStyle descStyle = new GUIStyle(EditorStyles.miniLabel) 
+        { 
+            fontSize = 11, 
+            normal = { textColor = new Color(0.7f, 0.7f, 0.7f) } 
+        };
+        
         Color origColor = GUI.backgroundColor;
 
         // Title

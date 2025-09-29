@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEditor;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 using PhilSorter.Localization;
 
 public static class PhilSorterContextMenu
@@ -31,8 +31,10 @@ public static class PhilSorterContextMenu
     [MenuItem("Assets/Phil's Sorter/Move To...", true)]
     private static bool ValidateMoveMenu()
     {
-        bool valid = Selection.activeObject != null && AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(Selection.activeObject));
-        if (config != null && config.showDebugLogs) Debug.Log($"[Phil's Sorter] ValidateMoveMenu: {valid}");
+        bool valid = Selection.activeObject != null && 
+                    AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(Selection.activeObject));
+        if (config != null && config.showDebugLogs) 
+            Debug.Log($"[Phil's Sorter] ValidateMoveMenu: {valid}");
         return valid;
     }
 
@@ -43,8 +45,13 @@ public static class PhilSorterContextMenu
         if (config != null && config.showDebugLogs) Debug.Log("[Phil's Sorter] ShowMoveMenu called");
         if (config == null || config.targetFolders.Count == 0)
         {
-            if (config != null && config.showDebugLogs) Debug.LogWarning("[Phil's Sorter] No target folders configured.");
-            EditorUtility.DisplayDialog("Phil's Sorter", "No target folders configured. Open Window/Phil's Sorter (Config) to add targets.", "OK");
+            if (config != null && config.showDebugLogs) 
+                Debug.LogWarning("[Phil's Sorter] No target folders configured.");
+            
+            EditorUtility.DisplayDialog(
+                "Phil's Sorter", 
+                "No target folders configured. Open Window/Phil's Sorter (Config) to add targets.", 
+                "OK");
             return;
         }
         PhilSorterMoveToWindow.ShowWindow(config);
@@ -94,10 +101,30 @@ public static class PhilSorterContextMenu
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
             // Use the same order as categories list (user order)
-            foreach (var category in (config == null ? new List<string>() : (new List<string>(new[] { "Default" }).Concat(config.customCategories ?? new List<string>()).Concat(config.targetFolders.Select(f => string.IsNullOrEmpty(f.category) ? "Default" : f.category)).Distinct().ToList())))
+            List<string> categories;
+            if (config == null)
+            {
+                categories = new List<string>();
+            }
+            else
+            {
+                categories = new List<string>(new[] { "Default" })
+                    .Concat(config.customCategories ?? new List<string>())
+                    .Concat(config.targetFolders.Select(f => 
+                        string.IsNullOrEmpty(f.category) ? "Default" : f.category))
+                    .Distinct()
+                    .ToList();
+            }
+            
+            foreach (var category in categories)
             {
                 EditorGUILayout.LabelField(category, categoryStyle);
-                var folders = config.targetFolders.Where(f => (string.IsNullOrEmpty(search) || (f.displayName != null && f.displayName.ToLower().Contains(search.ToLower())) || (f.path != null && f.path.ToLower().Contains(search.ToLower()))) && (f.category == category)).ToList();
+                
+                var folders = config.targetFolders.Where(f => 
+                    (string.IsNullOrEmpty(search) || 
+                     (f.displayName != null && f.displayName.ToLower().Contains(search.ToLower())) || 
+                     (f.path != null && f.path.ToLower().Contains(search.ToLower()))) && 
+                    (f.category == category)).ToList();
                 foreach (var folder in folders)
                 {
                     Rect rowRect = EditorGUILayout.GetControlRect(false, 32);
@@ -110,13 +137,14 @@ public static class PhilSorterContextMenu
                     // Draw border
                     Handles.BeginGUI();
                     Handles.color = isHover ? new Color(0.25f, 0.5f, 1f, 0.25f) : new Color(0.2f, 0.2f, 0.2f, 0.10f);
-                    Handles.DrawAAPolyLine(2f, new Vector3[] {
+                    Vector3[] borderPoints = {
                         new Vector3(rowRect.x, rowRect.y),
                         new Vector3(rowRect.x + rowRect.width, rowRect.y),
                         new Vector3(rowRect.x + rowRect.width, rowRect.y + rowRect.height),
                         new Vector3(rowRect.x, rowRect.y + rowRect.height),
                         new Vector3(rowRect.x, rowRect.y)
-                    });
+                    };
+                    Handles.DrawAAPolyLine(2f, borderPoints);
                     Handles.EndGUI();
                     // Button overlay
                     if (GUI.Button(rowRect, GUIContent.none, GUIStyle.none))
@@ -153,13 +181,14 @@ public static class PhilSorterContextMenu
                     EditorGUI.DrawRect(rowRect, isHover ? new Color(0.25f, 0.5f, 1f, 0.08f) : new Color(0.18f, 0.18f, 0.18f, 0.03f));
                     Handles.BeginGUI();
                     Handles.color = isHover ? new Color(0.25f, 0.5f, 1f, 0.18f) : new Color(0.2f, 0.2f, 0.2f, 0.08f);
-                    Handles.DrawAAPolyLine(2f, new Vector3[] {
+                    Vector3[] points = {
                         new Vector3(rowRect.x, rowRect.y),
                         new Vector3(rowRect.x + rowRect.width, rowRect.y),
                         new Vector3(rowRect.x + rowRect.width, rowRect.y + rowRect.height),
                         new Vector3(rowRect.x, rowRect.y + rowRect.height),
                         new Vector3(rowRect.x, rowRect.y)
-                    });
+                    };
+                    Handles.DrawAAPolyLine(2f, points);
                     Handles.EndGUI();
                     if (GUI.Button(rowRect, GUIContent.none, GUIStyle.none))
                     {
